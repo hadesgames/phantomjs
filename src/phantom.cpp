@@ -27,6 +27,8 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+/* NetBaiji hack */
+#include <cstdlib>
 
 #include "phantom.h"
 
@@ -354,6 +356,7 @@ void Phantom::onInitialized()
 // private:
 void Phantom::doExit(int code)
 {
+    ::quick_exit(code);
     if (m_config.debug())
     {
         Utils::cleanupFromDebug();
