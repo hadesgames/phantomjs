@@ -26,7 +26,9 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include <cstdio>
+#include <cstdlib>
+#include <signal.h>
 #include "consts.h"
 #include "utils.h"
 #include "env.h"
@@ -44,6 +46,10 @@
 #if QT_VERSION != QT_VERSION_CHECK(4, 8, 2)
 #error Something is wrong with the setup. Please report to the mailing list!
 #endif
+
+void timeout(int x) {
+  quick_exit(19);
+}
 
 int main(int argc, char** argv, const char** envp)
 {
@@ -73,10 +79,22 @@ int main(int argc, char** argv, const char** envp)
     Utils::printDebugMessages = phantom->printDebugMessages();
     qInstallMsgHandler(Utils::messageHandler);
 
+    signal(SIGALRM, timeout);
+
+    FILE *in;
+    in =  fopen("timeout.txt", "r");
+    if (in) {
+      int t;
+      fscanf(in, "%d", &t);
+      alarm(t);
+      fclose(in); 
+    }
+
     // Start script execution
     if (phantom->execute()) {
         app.exec();
     }
+    alarm(0);
 
     // End script execution: delete the phantom singleton and set execution return value
     int retVal = phantom->returnValue();
